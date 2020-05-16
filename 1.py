@@ -21,9 +21,24 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(train_images, train_labels,epochs=5)
+model.fit(train_images, train_labels, epochs=5)
 
-test_loss, test_acc= model.evaluate(test_images,test_labels)
+test_loss, test_acc = model.evaluate(test_images, test_labels)
 print('Test accuracy', test_acc)
 predictions = model.predict(test_images)
-print(np.argmax(predictions[0]))
+
+plt.figure(figsize=(10,10))
+for i in range(25):
+	plt.subplot(5, 5, i + 1)
+	plt.xticks([])
+	plt.yticks([])
+	plt.grid('off')
+	plt.imshow(test_images[i], cmap=plt.cm.binary)
+	prediction_label = np.argmax(predictions[i])
+	true_label = test_labels[i]
+	if prediction_label == true_label:
+		color = 'green'
+	else:
+		color = 'red'
+	plt.xlabel("{} ({})".format(class_names[prediction_label], class_names[true_label]), color=color)
+plt.show()
