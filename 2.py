@@ -25,7 +25,7 @@ model.summary()
 
 
 model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              loss=tf.keras.losses.sparse_categorical_crossentropy,
               metrics=['accuracy'])
 
 
@@ -41,6 +41,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
+plt.show()
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 print("Test loss = {} and Test accuracy = {}.".format(test_loss, test_acc))
