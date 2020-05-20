@@ -18,7 +18,7 @@ model = keras.Sequential([
 ])
 
 model.compile(optimizer=tf.train.AdamOptimizer(),
-              loss='sparse_categorical_crossentropy',
+               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
 model.fit(train_images, train_labels, epochs=5)
@@ -27,9 +27,9 @@ test_loss, test_acc = model.evaluate(test_images, test_labels)
 print('Test accuracy', test_acc)
 predictions = model.predict(test_images)
 
-plt.figure(figsize=(10,10))
-for i in range(25):
-	plt.subplot(5, 5, i + 1)
+plt.figure(figsize=(10, 10))
+for i in range(25, 50):
+	plt.subplot(5, 5, i - 24)
 	plt.xticks([])
 	plt.yticks([])
 	plt.grid('off')
