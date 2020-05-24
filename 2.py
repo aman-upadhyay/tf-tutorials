@@ -35,7 +35,7 @@ history = model.fit(train_images, train_labels, epochs=10,
 
 plt.plot(history.history['acc'], label='accuracy', color='orange',ls='-')
 plt.plot(history.history['val_acc'], label = 'test accuracy', color='orange',ls='dotted')
-plt.plot(history.history['loss'], label = 'loss', color='blue',ls='_')
+plt.plot(history.history['loss'], label = 'loss', color='blue',ls='-')
 plt.plot(history.history['val_loss'], label = 'test loss', color='blue',ls='dotted')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
