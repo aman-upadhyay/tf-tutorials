@@ -39,7 +39,7 @@ plt.plot(history.history['loss'], label = 'loss', color='blue',ls='dotted')
 plt.plot(history.history['val_loss'], label = 'test loss', color='blue',ls='-')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-plt.ylim([0.5, 1])
+plt.ylim([0, 1])
 plt.legend(loc='lower right')
 plt.show()
 
