@@ -20,7 +20,7 @@ model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10))
+model.add(layers.Dense(10, activation='softmax'))
 model.summary()
 
 
@@ -33,13 +33,13 @@ history = model.fit(train_images, train_labels, epochs=10,
                     validation_data=(test_images, test_labels))
 
 
-plt.plot(history.history['acc'], label='accuracy', color='orange',ls='dotted')
-plt.plot(history.history['val_acc'], label = 'test accuracy', color='orange',ls='-')
-plt.plot(history.history['loss'], label = 'loss', color='blue',ls='dotted')
-plt.plot(history.history['val_loss'], label = 'test loss', color='blue',ls='-')
+plt.plot(history.history['acc'], label='accuracy', color='orange',ls='-')
+plt.plot(history.history['val_acc'], label = 'test accuracy', color='orange',ls='dotted')
+plt.plot(history.history['loss'], label = 'loss', color='blue',ls='_')
+plt.plot(history.history['val_loss'], label = 'test loss', color='blue',ls='dotted')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-plt.ylim([0, 1])
+plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 plt.show()
 
