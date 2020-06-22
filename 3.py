@@ -9,27 +9,32 @@ if gpus:
     print(e)
 import matplotlib.pyplot as plt
 
-(train_images, train_labels), (test_images, test_labels) = keras.datasets.cifar10.load_data()
+(train_images, train_labels), (test_images, test_labels) = keras.datasets.fashion_mnist.load_data()
 
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
-class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck']
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
 
-model = keras.Sequential()
-model.add(keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
-model.add(keras.layers.MaxPooling2D((2, 2)))
-model.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(keras.layers.MaxPooling2D((2, 2)))
-model.add(keras.layers.Dropout(0.25))
-model.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(keras.layers.Flatten())
-model.add(keras.layers.Dense(64, activation='relu'))
-model.add(keras.layers.Dense(10, activation='softmax'))
-model.summary()
+modelcnn = keras.Sequential()
+modeldl = keras.Sequential()
+modelcnn.add(keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+modelcnn.add(keras.layers.MaxPooling2D((2, 2)))
+modelcnn.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
+modelcnn.add(keras.layers.MaxPooling2D((2, 2)))
+modelcnn.add(keras.layers.Dropout(0.25))
+modelcnn.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
 
+modeldl.add(keras.layers.Flatten(input_shape=(3,3,64)))
+modeldl.add(keras.layers.Dense(64, activation='relu'))
+modeldl.add(keras.layers.Dense(10, activation='softmax'))
+modelcnn.summary()
+modeldl.summary()
+model = tf.keras.Sequential([
+  modelcnn,
+  modeldl
+])
 model.compile(optimizer='adam',
               loss=tf.keras.losses.sparse_categorical_crossentropy,
               metrics=['accuracy'])
