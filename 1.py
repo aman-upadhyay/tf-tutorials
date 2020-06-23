@@ -28,8 +28,8 @@ print('Test accuracy', test_acc)
 predictions = model.predict(test_images)
 
 plt.figure(figsize=(10, 10))
-for i in range(25, 50):
-	plt.subplot(5, 5, i - 24)
+for i in range(0, 25):
+	plt.subplot(5, 5, i + 1)
 	plt.xticks([])
 	plt.yticks([])
 	plt.grid('off')

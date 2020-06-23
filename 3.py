@@ -20,15 +20,10 @@ class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 
 
 modelcnn = keras.Sequential()
 modeldl = keras.Sequential()
-modelcnn.add(keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
-modelcnn.add(keras.layers.MaxPooling2D((2, 2)))
-modelcnn.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
-modelcnn.add(keras.layers.MaxPooling2D((2, 2)))
-modelcnn.add(keras.layers.Dropout(0.25))
-modelcnn.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
+modelcnn.add(keras.layers.Conv2D(10, (20, 20), padding='same', activation='relu', input_shape=(28, 28, 1)))
 
-modeldl.add(keras.layers.Flatten(input_shape=(3,3,64)))
-modeldl.add(keras.layers.Dense(64, activation='relu'))
+
+modeldl.add(keras.layers.Flatten(input_shape=(28,28,10)))
 modeldl.add(keras.layers.Dense(10, activation='softmax'))
 modelcnn.summary()
 modeldl.summary()
@@ -57,4 +52,4 @@ plt.show()
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 print("Test loss = {} and Test accuracy = {}.".format(test_loss, test_acc))
 
-modelcnn.save('./saved_model/modelcnn')
+modelcnn.save('./saved_model/modelcnn2')
