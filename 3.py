@@ -9,13 +9,13 @@ if gpus:
   except RuntimeError as e:
     print(e)
 
-(train_images, train_labels), (test_images, test_labels) = keras.datasets.fashion_mnist.load_data()
+(train_images, train_labels), (test_images, test_labels) = keras.datasets.mnist.load_data()
 train_images = train_images.reshape((train_images.shape[0], 28, 28, 1))
 test_images = test_images.reshape((test_images.shape[0], 28, 28, 1))
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
-class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
+#class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
 
 modelcnn = keras.Sequential()
