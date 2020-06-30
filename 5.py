@@ -1,10 +1,14 @@
+# download data from https://drive.google.com/file/d/1lUp53MP8bauZCJ0LQJppn4wSKK-l6PZd/view?usp=sharingscap
+
+
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 from tensorflow_examples.models.pix2pix import pix2pix
 import os
-from PIL import Image, ImageOps
+from PIL import Image
+from tqdm import tqdm_notebook as tqdm
 
 ############################################################################################
 
@@ -18,55 +22,58 @@ if gpus:
 
 ############################################################################################
 
-xt = list()
-yt = list()
+x = list()
+y = list()
 
-image_train_dir = 'cityscapes_data/train'
-image_test_dir = 'cityscapes_data/val'
-image_train_filename = os.listdir(image_train_dir)
-image_test_filename = os.listdir(image_test_dir)
-for filename in image_train_filename[0:250]:
-	image1 = Image \
-		.open(os.path.join(image_train_dir, filename))
-	xt.append(np.asarray(ImageOps.crop(image1, (0, 0, 256, 0))))
-	yt.append(np.asarray(ImageOps.crop(image1, (256, 0, 0, 0))))
-xt = np.array(xt) / 255
-yt = np.array(yt)
+image_traini_dir = './city/train/image'
+image_trainl_dir = './city/train/label'
+image_testi_dir = './city/test/image'
+image_testl_dir = './city/test/label'
+image_traini_filename = os.listdir(image_traini_dir)
+image_trainl_filename = os.listdir(image_trainl_dir)
+image_testi_filename = os.listdir(image_testi_dir)
+image_testl_filename = os.listdir(image_testl_dir)
+for filename in range(1, 2796):
+	image = Image \
+		.open(os.path.join(image_traini_dir, str(filename) + '.jpg'))
+	x.append(np.asarray(image))
+for filename in range(1, 2796):
+	image = Image \
+		.open(os.path.join(image_trainl_dir, str(filename) + '.jpg'))
+	y.append(np.asarray(image))
+x = np.array(x) / 255
+y = np.array(y)
+y = y[:, :, :, np.newaxis]
 
-train_features, train_labels = xt, yt
-del xt
-del yt
-xt = list()
-yt = list()
-for filename in image_test_filename[0:100]:
-	image1 = Image \
-		.open(os.path.join(image_test_dir, filename))
-	xt.append(np.asarray(ImageOps.crop(image1, (0, 0, 256, 0))))
-	yt.append(np.asarray(ImageOps.crop(image1, (256, 0, 0, 0))))
-xt = np.array(xt) / 255
-yt = np.array(yt)
+train_features, train_labels = x, y
+del x
+del y
+x = list()
+y = list()
+for filename in range(1, 501):
+	image = Image \
+		.open(os.path.join(image_testi_dir, str(filename) + '.jpg'))
+	x.append(np.asarray(image))
+for filename in range(1, 501):
+	image = Image \
+		.open(os.path.join(image_testl_dir, str(filename) + '.jpg'))
+	y.append(np.asarray(image))
+x = np.array(x) / 255
+y = np.array(y)
+y = y[:, :, :, np.newaxis]
 
-test_features, test_labels = xt, yt
+test_features, test_labels = x, y
+del x
+del y
 
-
-def binarize(pixel):
-	if np.array_equal(pixel, [128, 63, 127]):
-		return np.array([1])
-	else:
-		return np.array([0])
-
-
-train_labels = np.apply_along_axis(binarize, axis=3, arr=train_labels)
-test_labels = np.apply_along_axis(binarize, axis=3, arr=test_labels)
-
-TRAIN_LENGTH = 250
-BATCH_SIZE = 50
+TRAIN_LENGTH = train_labels.shape[0]
+BATCH_SIZE = 128
 STEPS_PER_EPOCH = TRAIN_LENGTH // BATCH_SIZE
 
 train_dataset = tf.data.Dataset.from_tensor_slices((train_features, train_labels))
-train_dataset = train_dataset.shuffle(250).batch(BATCH_SIZE)
+train_dataset = train_dataset.shuffle(train_labels.shape[0]).batch(BATCH_SIZE)
 test_dataset = tf.data.Dataset.from_tensor_slices((test_features, test_labels))
-test_dataset = test_dataset.shuffle(100).batch(BATCH_SIZE)
+test_dataset = test_dataset.shuffle(test_labels.shape[0]).batch(BATCH_SIZE)
 
 
 def display(display_list):
@@ -80,18 +87,16 @@ def display(display_list):
 	plt.show()
 
 
-display([train_features[0], train_labels[0]])
-
 OUTPUT_CHANNELS = 2
 base_model = tf.keras.applications.MobileNetV2(input_shape=[256, 256, 3], include_top=False)
 
 # Use the activations of these layers
 layer_names = [
-	'block_1_expand_relu',  # 128*128
-	'block_3_expand_relu',  # 64*64
-	'block_6_expand_relu',  # 32*32
-	'block_13_expand_relu',  # 16*16
-	'block_16_project',  # 8*8
+	'block_1_expand_relu',  # 64x64
+	'block_3_expand_relu',  # 32x32
+	'block_6_expand_relu',  # 16x16
+	'block_13_expand_relu',  # 8x8
+	'block_16_project',  # 4x4
 ]
 layers = [base_model.get_layer(name).output for name in layer_names]
 
@@ -101,10 +106,10 @@ down_stack = tf.keras.Model(inputs=base_model.input, outputs=layers)
 down_stack.trainable = False
 
 up_stack = [
-	pix2pix.upsample(512, 3),
-	pix2pix.upsample(256, 3),
-	pix2pix.upsample(128, 3),
-	pix2pix.upsample(64, 3),
+	pix2pix.upsample(512, 3),  # 8x8 -> 16x16
+	pix2pix.upsample(256, 3),  # 16x16 -> 32x32
+	pix2pix.upsample(128, 3),  # 32x32 -> 64x64
+	pix2pix.upsample(64, 3),  # 64x64 -> 128x128
 ]
 
 
@@ -126,7 +131,7 @@ def unet_model(output_channels):
 	# This is the last layer of the model
 	last = tf.keras.layers.Conv2DTranspose(
 		output_channels, 3, strides=2,
-		padding='same')  # 64x64 -> 128x128
+		padding='same')  # 128x128 -> 256*256
 
 	x = last(x)
 
@@ -137,8 +142,6 @@ model = unet_model(OUTPUT_CHANNELS)
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
-
-model.summary()
 
 
 def create_mask(pred_mask):
@@ -157,6 +160,9 @@ def show_train_predictions(dataset=None, num=1):
 		display([image[0], mask[0], create_mask(pred_mask)])
 
 
+show_predictions(dataset=False)
+
+
 class DisplayCallback(tf.keras.callbacks.Callback):
 	def on_epoch_end(self, epoch, logs=None):
 		clear_output(wait=True)
@@ -165,12 +171,11 @@ class DisplayCallback(tf.keras.callbacks.Callback):
 
 
 EPOCHS = 20
-VALIDATION_STEPS = 100 // BATCH_SIZE
 model_history = model.fit(train_dataset, epochs=EPOCHS,
                           steps_per_epoch=STEPS_PER_EPOCH,
-                          validation_steps=VALIDATION_STEPS,
                           validation_data=test_dataset,
                           callbacks=[DisplayCallback()])
+
 loss = model_history.history['loss']
 val_loss = model_history.history['val_loss']
 
@@ -178,7 +183,7 @@ epochs = range(EPOCHS)
 
 plt.figure()
 plt.plot(epochs, loss, 'r', label='Training loss')
-plt.plot(epochs, val_loss, 'bo', label='Validation loss')
+plt.plot(epochs, val_loss, 'b', label='Validation loss')
 plt.title('Training and Validation Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss Value')
@@ -186,4 +191,4 @@ plt.ylim([0, 1])
 plt.legend()
 plt.show()
 
-show_train_predictions(test_dataset, 2)
+show_train_predictions(test_dataset, 20)
